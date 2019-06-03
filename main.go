@@ -1,9 +1,19 @@
 package main
 
 import (
-  "fmt"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-func main(){
-  fmt.Printf("Hello, World!")
+func main() {
+	r := gin.Default()
+
+	r.GET("/hello", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"status": "OK",
+		})
+	})
+
+	r.Run(":8080")
 }
