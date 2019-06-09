@@ -8,6 +8,7 @@ services:
       - 3306:3306
     restart: always
     environment:
+      TZ: Asia/Tokyo
       MYSQL_DATABASE: itspkadai
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     command: mysqld
