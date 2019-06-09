@@ -3,8 +3,11 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.9
+        environment:
+          TZ: Asia/Tokyo
       - image: circleci/mysql:8.0.16
         environment:
+          TZ: Asia/Tokyo
           MYSQL_DATABASE: itspkadai
           MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     working_directory: /go/src/github.com/akky2501/itsp-kadai
