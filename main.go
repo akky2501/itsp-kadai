@@ -4,22 +4,22 @@ import (
 	"encoding/json"
 	"net/http"
 	"sort"
-
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
-
-	"strconv"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 type Event struct {
+	ID       int `gorm:"primary_key"`
 	Deadline time.Time
 	Title    string
 	Memo     string
 }
 
-var table map[int]Event
-var lastid int
+var db *gorm.DB = nil
 
 func registerEvent(ctx *gin.Context) {
 	var body struct {
@@ -46,14 +46,17 @@ func registerEvent(ctx *gin.Context) {
 		return
 	}
 
-	event := Event{t, body.Title, body.Memo}
-	lastid++
-	table[lastid] = event
+	event := Event{}
+	event.Deadline = t
+	event.Title = body.Title
+	event.Memo = body.Memo
+
+	db.Create(&event)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": "registered",
-		"id":      lastid,
+		"id":      event.ID,
 	})
 }
 
@@ -65,15 +68,12 @@ func getAllEvents(ctx *gin.Context) {
 		Memo     string `json:"memo"`
 	}
 
-	keys := []int{}
-	for id := range table {
-		keys = append(keys, id)
-	}
-	sort.Ints(keys)
+	events := []Event{}
+	db.Find(&events)
+	sort.Slice(events, func(i, j int) bool { return events[i].ID < events[j].ID })
 	entries := []Response{}
-	for _, k := range keys {
-		y := table[k]
-		e := Response{k, y.Deadline.Format(time.RFC3339), y.Title, y.Memo}
+	for _, y := range events {
+		e := Response{y.ID, y.Deadline.Format(time.RFC3339), y.Title, y.Memo}
 		entries = append(entries, e)
 	}
 
@@ -91,7 +91,9 @@ func getAllEvents(ctx *gin.Context) {
 
 func getEvent(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
-	if event, ok := table[id]; ok {
+	event := Event{}
+	event.ID = id
+	if !db.First(&event).RecordNotFound() {
 		ctx.JSON(http.StatusOK, gin.H{
 			"id":       id,
 			"deadline": event.Deadline.Format(time.RFC3339),
@@ -103,9 +105,21 @@ func getEvent(ctx *gin.Context) {
 	}
 }
 
+func deleteAllEventsFromDB() {
+	e := Event{}
+	db.Delete(e)
+}
+
 func setupRouter() *gin.Engine {
-	table = make(map[int]Event)
-	lastid = 0
+	if db == nil {
+		var err error
+		db, err = gorm.Open("mysql", "root:@tcp(localhost:3306)/itspkadai?charset=utf8&parseTime=True&loc=Local")
+		if err != nil {
+			panic("failed to connect database")
+		}
+
+		db.AutoMigrate(&Event{})
+	}
 
 	r := gin.Default()
 	r.POST("/api/v1/event", registerEvent)

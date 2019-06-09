@@ -80,6 +80,7 @@ func GetEvents(t *testing.T, r *gin.Engine) []RequestEvent {
 
 func Test1(t *testing.T) {
 	r := setupRouter()
+	deleteAllEventsFromDB()
 
 	w := httptest.NewRecorder()
 	d, _ := json.Marshal(RequestEvent{nil, "2019-06-11T14:00:00+09:00", "レポート提出", ""})
@@ -97,6 +98,7 @@ func Test1(t *testing.T) {
 
 func Test2(t *testing.T) {
 	r := setupRouter()
+	deleteAllEventsFromDB()
 
 	w := httptest.NewRecorder()
 	d, _ := json.Marshal(RequestEvent{nil, "2019/06/11T14:00:00+09:00", "レポート提出", ""})
@@ -113,6 +115,7 @@ func Test2(t *testing.T) {
 
 func Test3(t *testing.T) {
 	r := setupRouter()
+	deleteAllEventsFromDB()
 
 	requestEvent := RequestEvent{nil, "2019-06-11T14:00:00+09:00", "レポート提出", "memomemo"}
 	id := PostEvent(t, r, requestEvent)
@@ -123,6 +126,7 @@ func Test3(t *testing.T) {
 
 func Test4(t *testing.T) {
 	r := setupRouter()
+	deleteAllEventsFromDB()
 
 	ev := RequestEvent{nil, "2019-06-11T14:00:00+09:00", "レポート提出", "memomemo"}
 	id := PostEvent(t, r, ev)
@@ -139,6 +143,7 @@ func Test4(t *testing.T) {
 
 func Test5(t *testing.T) {
 	r := setupRouter()
+	deleteAllEventsFromDB()
 
 	ev := RequestEvent{nil, "2019-06-11T14:00:00+09:00", "レポート提出", "memomemo"}
 	id := PostEvent(t, r, ev)
@@ -149,7 +154,7 @@ func Test5(t *testing.T) {
 	ev3 := RequestEvent{nil, "2019-06-13T14:00:00+09:00", "レポート提出3", "memomemo3"}
 	id3 := PostEvent(t, r, ev3)
 
-	ev4 := RequestEvent{nil, "2019-06-14T14:00:00+09:00", "レポート提出3", "memomemo4"}
+	ev4 := RequestEvent{nil, "2019-06-14T14:00:00+09:00", "レポート提出4", "memomemo4"}
 	id4 := PostEvent(t, r, ev4)
 
 	evs := GetEvents(t, r)
