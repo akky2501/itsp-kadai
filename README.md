@@ -7,6 +7,16 @@ ITSPの課題(1Q)
 ## 概要
 簡単なスケジュール管理APIサーバー
 
+### 起動方法
+以下のコマンドで，8080ポートで立ち上がります．
+
+```
+$ docker-compose build
+$ docker-compose up -d
+$ go run main.go
+```
+
+
 ### API一覧
 ```
 # イベント登録 API request
